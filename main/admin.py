@@ -6,9 +6,9 @@ from main.models import Client, NewsletterSettings, NewsletterMessage, Newslette
 # Register your models here.
 @admin.register(Client)
 class ClientAdmin(admin.ModelAdmin):
-    list_display = ('email', 'fullname', 'comment',)
-    list_filter = ('email', 'fullname',)
-    search_fields = ('email', 'fullname',)
+    list_display = ('email', 'first_name', 'last_name', 'comment',)
+    list_filter = ('email', 'first_name', 'last_name',)
+    search_fields = ('email', 'first_name', 'last_name',)
 
 @admin.register(NewsletterSettings)
 class NewsletterSettingsAdmin(admin.ModelAdmin):
