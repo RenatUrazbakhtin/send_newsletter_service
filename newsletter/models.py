@@ -1,5 +1,7 @@
 from django.db import models
 
+from main.models import Client
+
 # Create your models here.
 NULLABLE = {'null': True, 'blank': True}
 
@@ -15,18 +17,20 @@ class NewsletterMessage(models.Model):
         verbose_name_plural = 'Сообщения рассылок'
 
 class NewsletterSettings(models.Model):
-    newsletter_time_from = models.TimeField(auto_now_add=True, verbose_name='Время начала рассылки')
-    newsletter_time_to = models.TimeField(auto_now_add=True, verbose_name='Время окончания рассылки')
+    newsletter_time_from = models.TimeField(auto_now_add=True, verbose_name='Время начала рассылки', **NULLABLE)
+    newsletter_time_to = models.TimeField(auto_now_add=True, verbose_name='Время окончания рассылки', **NULLABLE)
     periodicity = models.CharField(max_length=100, verbose_name='Периодичность')
     status = models.CharField(max_length=100, default='Создана', verbose_name='Статус')
 
-    newsletter = models.ForeignKey(NewsletterMessage, on_delete=models.CASCADE, verbose_name='Тема')
+    client = models.ManyToManyField(Client, verbose_name='Клиент рассылки')
+    message = models.ForeignKey(NewsletterMessage, on_delete=models.CASCADE, verbose_name='Сообщение рассылки', **NULLABLE)
     def __str__(self):
         return f'{self.newsletter_time_from} по {self.newsletter_time_to}'
 
     class Meta:
         verbose_name = 'Рассылка'
         verbose_name_plural = 'Рассылки'
+
 
 class NewsletterLog(models.Model):
     last_attempt_time = models.DateTimeField(auto_now_add=True, verbose_name='Последняя попытка')
