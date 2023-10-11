@@ -1,0 +1,23 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="row text-center">
+    {% for object in object_list %}
+    <div class="col-3">
+        <div class="bg-body-tertiary me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
+            <div class="my-3 p-3">
+                <h2 class="display-5"> Рассылка {{object.pk}} </h2>
+                <p class="lead">Информация</p>
+                <p class="text-center">Периодичность: {{object.periodicity}} </p>
+                <p class="text-center">Статус: {{object.status}}</p>
+                <a class="p-2 btn btn-outline-primary"
+                   href="{% url 'NewsletterSettings_detail' object.pk %}">Посмотреть</a>
+                <a class="p-2 btn btn-outline-primary" href="{% url 'NewsletterSettings_update' object.pk %}">Редактировать</a>
+                <a class="p-2 btn btn-outline-primary"
+                   href="{% url 'NewsletterSettings_delete' object.pk %}">Удалить</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
