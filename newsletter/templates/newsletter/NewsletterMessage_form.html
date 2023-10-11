@@ -1,0 +1,24 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row text-center">
+        <div class="col-3">
+            Сообщение {{object.pk}}
+        </div>
+    </div>
+    <div class="row text-center">
+        <div class="col-3">
+            <div class="card mb-4 box-shadow">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{form.as_p}}
+                        <button type="submit" class="btn btn-primary">Создать</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
