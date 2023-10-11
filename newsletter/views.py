@@ -29,8 +29,8 @@ class NewsletterMessageDeleteView(DeleteView):
     success_url = reverse_lazy('NewsletterMessage_list')
 
 
-# class NewsletterLogListView(ListView):
-#     model = NewsletterLog
+class NewsletterLogListView(ListView):
+    model = NewsletterLog
 #
 # class NewsletterSettingsListView(ListView):
 #     model = NewsletterSettings
