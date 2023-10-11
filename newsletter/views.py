@@ -31,24 +31,24 @@ class NewsletterMessageDeleteView(DeleteView):
 
 class NewsletterLogListView(ListView):
     model = NewsletterLog
-#
-# class NewsletterSettingsListView(ListView):
-#     model = NewsletterSettings
-#
-# class NewsletterSettingsDetailView(DetailView):
-#     model = NewsletterSettings
-#
-# class NewsletterSettingsCreateView(CreateView):
-#     model = NewsletterSettings
-#     form_class = NewsLetterSettingsForm
-#     success_url = reverse_lazy('home')
-#
-# class NewsletterSettingsUpdateView(UpdateView):
-#     model = NewsletterSettings
-#     form_class = NewsLetterSettingsForm
-#     def get_success_url(self):
-#         return reverse('NewsletterMessage_list')
-#
-# class NewsletterSettingsDeleteView(DeleteView):
-#     model = NewsletterSettings
-#     success_url = reverse_lazy('NewsletterMessage_list')
+
+class NewsletterSettingsListView(ListView):
+    model = NewsletterSettings
+
+class NewsletterSettingsDetailView(DetailView):
+    model = NewsletterSettings
+
+class NewsletterSettingsCreateView(CreateView):
+    model = NewsletterSettings
+    form_class = NewsLetterSettingsForm
+    success_url = reverse_lazy('home')
+
+class NewsletterSettingsUpdateView(UpdateView):
+    model = NewsletterSettings
+    form_class = NewsLetterSettingsForm
+    def get_success_url(self):
+        return reverse('NewsletterMessage_list')
+
+class NewsletterSettingsDeleteView(DeleteView):
+    model = NewsletterSettings
+    success_url = reverse_lazy('NewsletterMessage_list')
