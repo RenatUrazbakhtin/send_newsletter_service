@@ -4,7 +4,17 @@ from main.models import Client
 
 # Create your models here.
 NULLABLE = {'null': True, 'blank': True}
+periodicity = [
+    ('OD', 'Раз в день'),
+    ('OW', 'Раз в неделю'),
+    ('OM', 'Раз в месяц')
+]
 
+status_mode = [
+    ('CR', 'Создана'),
+    ('LD', 'Запущена'),
+    ('ED', 'Завершена')
+]
 class NewsletterMessage(models.Model):
     title = models.CharField(max_length=100, verbose_name='Тема')
     body = models.TextField(max_length=1000, verbose_name='Тело')
@@ -19,8 +29,8 @@ class NewsletterMessage(models.Model):
 class NewsletterSettings(models.Model):
     newsletter_time_from = models.TimeField(auto_now_add=True, verbose_name='Время начала рассылки', **NULLABLE)
     newsletter_time_to = models.TimeField(auto_now_add=True, verbose_name='Время окончания рассылки', **NULLABLE)
-    periodicity = models.CharField(max_length=100, verbose_name='Периодичность')
-    status = models.CharField(max_length=100, default='Создана', verbose_name='Статус')
+    periodicity = models.CharField(max_length=100, choices=periodicity, verbose_name='Периодичность')
+    status = models.CharField(max_length=100, default='Создана', choices=status_mode, verbose_name='Статус')
 
     client = models.ManyToManyField(Client, verbose_name='Клиент рассылки')
     message = models.ForeignKey(NewsletterMessage, on_delete=models.CASCADE, verbose_name='Сообщение рассылки', **NULLABLE)
