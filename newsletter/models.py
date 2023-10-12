@@ -15,16 +15,6 @@ status_mode = [
     ('LD', 'Запущена'),
     ('ED', 'Завершена')
 ]
-class NewsletterMessage(models.Model):
-    title = models.CharField(max_length=100, verbose_name='Тема')
-    body = models.TextField(max_length=1000, verbose_name='Тело')
-
-    def __str__(self):
-        return self.title
-
-    class Meta:
-        verbose_name = 'Сообщение рассылки'
-        verbose_name_plural = 'Сообщения рассылок'
 
 class NewsletterSettings(models.Model):
     newsletter_time_from = models.TimeField(auto_now_add=True, verbose_name='Время начала рассылки', **NULLABLE)
@@ -33,7 +23,6 @@ class NewsletterSettings(models.Model):
     status = models.CharField(max_length=100, default='Создана', choices=status_mode, verbose_name='Статус')
 
     client = models.ManyToManyField(Client, verbose_name='Клиент рассылки')
-    message = models.ForeignKey(NewsletterMessage, on_delete=models.CASCADE, verbose_name='Сообщение рассылки', **NULLABLE)
     def __str__(self):
         return f'{self.newsletter_time_from} по {self.newsletter_time_to}'
 
@@ -41,6 +30,16 @@ class NewsletterSettings(models.Model):
         verbose_name = 'Рассылка'
         verbose_name_plural = 'Рассылки'
 
+class NewsletterMessage(models.Model):
+    title = models.CharField(max_length=100, verbose_name='Тема')
+    body = models.TextField(max_length=1000, verbose_name='Тело')
+    newsletter = models.ForeignKey(NewsletterSettings, on_delete=models.CASCADE, **NULLABLE)
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = 'Сообщение рассылки'
+        verbose_name_plural = 'Сообщения рассылок'
 
 class NewsletterLog(models.Model):
     last_attempt_time = models.DateTimeField(auto_now_add=True, verbose_name='Последняя попытка')
