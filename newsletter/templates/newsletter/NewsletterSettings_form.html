@@ -1,24 +1,29 @@
 {% extends 'main/base.html' %}
+{% load crispy_forms_tags %}
 
 {% block content %}
-<div class="container">
-    <div class="row text-center">
-        <div class="col-3">
-            Рассылка {{object.pk}}
-        </div>
-    </div>
-    <div class="row text-center">
-        <div class="col-3">
-            <div class="card mb-4 box-shadow">
+    <form method="post">
+        <div class="row">
+            <div class="card col-3">
                 <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        {{form.as_p}}
-                        <button type="submit" class="btn btn-primary">Создать</button>
-                    </form>
+                    <h4 class="card-title">Установить дату</h4>
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ next }}">
+
+                    {{ form|crispy }}
+                </div>
+            </div>
+            <div class="card col">
+                <div class="card-body">
+                    <h4 class="card-title">Создать письмо</h4>
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ next }}">
+
+                    {{ newsletter_message_form|crispy }}
+
+                    <button type="submit" class="btn btn-primary btn-block">Создать</button>
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    </form>
 {% endblock %}

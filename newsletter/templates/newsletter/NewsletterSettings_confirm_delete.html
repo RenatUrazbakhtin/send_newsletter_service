@@ -10,7 +10,7 @@
                         {% csrf_token %}
                         <p>Удалить рассылку {{ object.pk }}?</p>
                         <button type="submit" class="btn btn-danger">Удалить</button>
-                        <a href="{% url 'NewsletterMessage_list' %}" class="btn btn-warning">Отмена</a>
+                        <a href="{% url 'NewsletterSettings_list' %}" class="btn btn-warning">Отмена</a>
                     </form>
                 </div>
             </div>

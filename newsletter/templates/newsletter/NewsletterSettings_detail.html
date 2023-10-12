@@ -5,12 +5,15 @@
     <div class="col-12">
         <div class="bg-body-tertiary me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
             <div class="my-3 p-3">
-                <h2 class="display-5"> Рассылка {{object.pk}} </h2>
+                <h2 class="display-5"> Рассылка {{newsletter.pk}} </h2>
                 <p class="lead">Информация</p>
-                <p class="text-center">Периодичность: {{object.periodicity}} </p>
-                <p class="text-center">Статус: {{object.status}}</p>
-                <p class="text-center">Рассылка отправляется {{object.client}}</p>
-                <p class="text-center">Сообщение рассылки: {{object.message}}</p>
+                <p class="text-center">Периодичность: {{newsletter.periodicity}} </p>
+                <p class="text-center">Статус: {{newsletter.status}}</p>
+                рассылка отправляется
+                {% for client in newsletter_client %}
+                    <p class="text-center">{{client.email}}</p>
+                {% endfor %}
+                <p class="text-center">Сообщение рассылки: {{newsletter_message.body}}</p>
                 <a class="p-2 btn btn-outline-primary" href="{% url 'NewsletterSettings_update' object.pk %}">Редактировать</a>
                 <a class="p-2 btn btn-outline-primary" href="{% url 'NewsletterSettings_delete' object.pk %}">Удалить</a>
             </div>
