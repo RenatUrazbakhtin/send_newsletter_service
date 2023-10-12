@@ -6,7 +6,7 @@ from newsletter.models import NewsletterSettings, NewsletterMessage, NewsletterL
 # Register your models here.
 @admin.register(NewsletterSettings)
 class NewsletterSettingsAdmin(admin.ModelAdmin):
-    list_display = ('newsletter_time_from', 'newsletter_time_to', 'periodicity', 'status', 'message')
+    list_display = ('newsletter_time_from', 'newsletter_time_to', 'periodicity', 'status',)
     list_filter = ('status',)
     search_fields = ('periodicity', 'subject',)
 
