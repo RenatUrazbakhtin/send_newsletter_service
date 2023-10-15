@@ -22,5 +22,33 @@
     </div>
     <div class="product-device shadow-sm d-none d-md-block"></div>
     <div class="product-device product-device-2 shadow-sm d-none d-md-block"></div>
+    <div class="row mx-auto mb-3">
+        <div class="col-3 text-white bg-info border mx-auto p-lg-3 rounded">Всего рассылок: {{ newsletter_count }}</div>
+        <div class="col-3 text-white bg-info border mx-auto p-lg-3 rounded">Активных рассылок: {{ newsletter_active }}
+        </div>
+        <div class="col-3 text-white bg-info border mx-auto p-lg-3 rounded">Уникальных клиентов: {{ unique_clients }}
+        </div>
+    </div>
+    <div class="row text-center">
+        {% for blog in blogs %}
+        <li class="list-group-item bg-light">
+            <div class="col 3">
+                <div class="bg-body-tertiary me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
+                    <div class="my-3 p-3">
+                        <div class="card-body">
+                            <img src="{{ blog.image.url }}" class="img-fluid mb-4" alt="">
+                            <h2 class="display-5">Блог {{blog.pk}} </h2>
+                            <p class="lead">Информация</p>
+                            <p class="text-center">Заголовок: {{blog.title}}</p>
+                            <p class="text-center">Содержание: {{blog.body}}</p>
+                            <p class="text-center">Количество просмотров: {{blog.views_count}}</p>
+                            <a class="p-2 btn btn-outline-primary" href="{% url 'blog_detail' blog.pk %}">Посмотреть</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </li>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}
