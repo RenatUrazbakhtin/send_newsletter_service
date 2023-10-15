@@ -9,8 +9,10 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import os
 from pathlib import Path
+
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,6 +41,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'main',
     'newsletter',
+    'crispy_forms',
+    'crispy_bootstrap4',
+    'django_apscheduler',
+    'blog',
 ]
 
 MIDDLEWARE = [
@@ -132,3 +138,27 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+SCHEDULER_DEFAULT = True
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
+CRISPY_TEMPLATE_PACK = "bootstrap4"
+
+load_dotenv(BASE_DIR / '/env')
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_USER')
+
+EMAIL_USE_SSL = True
+
+CACHE_ENABLED = os.getenv('CACHE_ENABLED') == 'True'
+
+if CACHE_ENABLED:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": os.getenv('CACHE_LOCATION'),
+        }
+    }
