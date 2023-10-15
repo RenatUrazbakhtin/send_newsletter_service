@@ -1,14 +1,34 @@
+import random
+
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 
+from blog.models import Blog
 from main.models import Client
+from newsletter.models import NewsletterSettings
 
 
 # Create your views here.
 
-def home(request):
-    return render(request, 'main/home.html')
+class HomeView(TemplateView):
+    template_name = 'main/home.html'
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        blogs = Blog.objects.all()
+        if blogs:
+            random_numbers = random.sample(range(len(blogs)), min(3, len(blogs)))
+            random_blogs = [blogs[i] for i in random_numbers]
+            context['blogs'] = random_blogs
+        context['newsletter_count'] = NewsletterSettings.objects.count()
+        context['newsletter_active'] = NewsletterSettings.objects.filter(status__in=['CR', 'LD']).count()
+        clients_objects = NewsletterSettings.client.through.objects.all()
+        list = []
+        for item in clients_objects:
+            list.extend(str(item.client_id))
+        context['unique_clients'] = len(set(list))
+        return context
 
 class ClientListView(ListView):
     model = Client
