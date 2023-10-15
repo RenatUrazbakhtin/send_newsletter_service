@@ -9,7 +9,7 @@
                 <p class="lead">Информация</p>
                 <p class="text-center">Периодичность: {{newsletter.periodicity}} </p>
                 <p class="text-center">Статус: {{newsletter.status}}</p>
-                рассылка отправляется
+                <p class="text-center"> Рассылка отправляется: </p>
                 {% for client in newsletter_client %}
                     <p class="text-center">{{client.email}}</p>
                 {% endfor %}
