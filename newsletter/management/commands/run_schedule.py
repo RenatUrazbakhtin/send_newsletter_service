@@ -29,6 +29,9 @@ def delete_old_job_executions(max_age=604_800):
 
 
 class Command(BaseCommand):
+    """
+    Запуск рассылок вручную
+    """
     help = "Runs APScheduler."
 
     def handle(self, *args, **options):

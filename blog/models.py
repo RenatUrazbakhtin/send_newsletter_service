@@ -3,6 +3,10 @@ from django.db import models
 NULLABLE = {'null': True, 'blank': True}
 # Create your models here.
 class Blog(models.Model):
+    """
+    Модель блога
+    """
+
     title = models.CharField(max_length=100, verbose_name='Заголовок')
     body = models.TextField(verbose_name='Содержание')
     image = models.ImageField(upload_to='products/', verbose_name='Превью')

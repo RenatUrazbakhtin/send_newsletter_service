@@ -14,12 +14,20 @@ from users.models import User
 
 # Create your views here.
 class RegisterView(CreateView):
+    """
+    Отображение для регистрации пользователя
+    """
     model = User
     form_class = UserRegisterForm
     template_name = 'users/register.html'
     success_url = reverse_lazy('users:login')
 
     def form_valid(self, form):
+        """
+        Отправка ссылки для подтверждения почты при валидности формы
+        :param form:
+        :return:
+        """
         user = form.save(commit=False)
         user.is_active = False
         token = secrets.token_urlsafe(nbytes=8)
@@ -38,15 +46,22 @@ class RegisterView(CreateView):
         return redirect('users:email_sent')
 
 class UserConfirmEmailView(View):
+    """
+    Отображение для логина пользователя
+    """
     def get(self, request, token):
         user = User.objects.get(token=token)
 
         user.is_active = True
         user.token = None
         user.save()
+
         return redirect('users:login')
 
 class EmailConfirmationSentView(TemplateView):
+    """
+    Отображение для предоставления информации об отправленной ссылки для подтверждения почты
+    """
     template_name = 'users/email_sent.html'
 
     def get_context_data(self, **kwargs):
@@ -54,6 +69,9 @@ class EmailConfirmationSentView(TemplateView):
         return context
 
 class UserUpdateView(LoginRequiredMixin, UpdateView):
+    """
+    Отображение для редактирования пользователя
+    """
     model = User
     form_class = UserForm
     template_name = 'users/profile.html'
@@ -62,6 +80,9 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
         return self.request.user
 
 def generate_password(request):
+    """
+    Генерация и отправка по почте нового пароля при его сбросе
+    """
     new_password = secrets.token_hex(nbytes=8)
     request.user.set_password(new_password)
     request.user.save()
@@ -76,6 +97,9 @@ def generate_password(request):
     return redirect(reverse('users:login'))
 
 class UserListView(LoginRequiredMixin, ListView):
+    """
+    Отображения списка пользователей сервиса
+    """
     model = User
     def get_context_data(self, **kwargs):
         object_list = User.objects.all()
@@ -85,6 +109,12 @@ class UserListView(LoginRequiredMixin, ListView):
         return context_data
 
 def change_activity(*args, **kwargs):
+    """
+    Меняет статус активности пользователя для его активации/деактивации
+    :param args:
+    :param kwargs:
+    :return:
+    """
     user = get_object_or_404(User, pk=kwargs.get('pk'))
     if user.is_active:
         user.is_active=False

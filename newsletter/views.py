@@ -19,6 +19,9 @@ scheduler.start()
 
 
 class NewsletterLogListView(LoginRequiredMixin, ListView):
+    """
+    Отображение логов рассылки
+    """
     model = NewsletterLog
 
     def get_context_data(self, **kwargs):
@@ -32,9 +35,17 @@ class NewsletterLogListView(LoginRequiredMixin, ListView):
 
 
 class NewsletterSettingsListView(LoginRequiredMixin, ListView):
+    """
+    Отображение списка рассылок
+    """
     model = NewsletterSettings
 
     def get_context_data(self, **kwargs):
+        """
+        Получение данных созданных авторизованным пользователем
+        :param kwargs:
+        :return:
+        """
         object_list = NewsletterSettings.objects.all()
         context_data = super().get_context_data(**kwargs)
         if self.request.user.is_staff:
@@ -46,10 +57,19 @@ class NewsletterSettingsListView(LoginRequiredMixin, ListView):
 
 
 class NewsletterSettingsDetailView(LoginRequiredMixin, DetailView):
+    """
+    Отображение отдельной рассылки
+    """
     model = NewsletterSettings
     context_object_name = 'newsletter'
 
     def get_context_data(self, *args, **kwargs):
+        """
+        Получение привязанного к рассылке сообщения и списка клиентов
+        :param args:
+        :param kwargs:
+        :return:
+        """
         context = super().get_context_data(*args, **kwargs)
         context['newsletter_message'] = NewsletterMessage.objects.get(newsletter=self.object)
         context['newsletter_client'] = Client.objects.filter(newslettersettings=self.object)
@@ -57,23 +77,41 @@ class NewsletterSettingsDetailView(LoginRequiredMixin, DetailView):
 
 
 class NewsletterSettingsCreateView(LoginRequiredMixin, CreateView):
+    """
+    Отображение создания рассылки
+    """
     model = NewsletterSettings
     form_class = NewsLetterSettingsForm
     extra_form_class = NewsLetterMessageForm
     success_url = reverse_lazy('home')
 
     def get_context_data(self, **kwargs):
+        """
+        Создание сообщения вместе с настройками рассылки
+        :param kwargs:
+        :return:
+        """
         context = super().get_context_data(**kwargs)
         context['newsletter_form'] = context['form']
         context['newsletter_message_form'] = self.extra_form_class()
         return context
 
     def get_queryset(self, **kwargs):
+        """
+        Получение клиентов рассылки
+        :param kwargs:
+        :return:
+        """
         context = super(Client).get_context_data(**kwargs)
         context['client'] = Client.objects.filter(id=self.kwargs['id'])
         return context
 
     def form_valid(self, form):
+        """
+        Получение логов о создании рассылки после валидности формы
+        :param form:
+        :return:
+        """
         newsletter = form.save(commit=False)
         newsletter.status = 'CR'
         extra_form = self.extra_form_class(self.request.POST)
@@ -100,6 +138,9 @@ class NewsletterSettingsCreateView(LoginRequiredMixin, CreateView):
 
 
 class NewsletterSettingsUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """
+    Отображение для редактирования рассылки
+    """
     model = NewsletterSettings
     form_class = NewsLetterSettingsForm
 
@@ -113,12 +154,22 @@ class NewsletterSettingsUpdateView(LoginRequiredMixin, UserPassesTestMixin, Upda
         return reverse('NewsletterSettings_list')
 
     def get_context_data(self, **kwargs):
+        """
+        Получаение сообщения рассылки
+        :param kwargs:
+        :return:
+        """
         context = super().get_context_data(**kwargs)
         newsletter_message = NewsletterMessage.objects.get(newsletter=self.object)
         context['newsletter_message_form'] = NewsLetterMessageForm(instance=newsletter_message)
         return context
 
     def form_valid(self, form):
+        """
+        Проверка форм и отправка рассылки при её редактировании
+        :param form:
+        :return:
+        """
         newsletter = form.save(commit=False)
         newsletter_message = NewsletterMessage.objects.get(newsletter=newsletter)
         extra_form = NewsLetterMessageForm(self.request.POST, instance=newsletter_message)
@@ -137,9 +188,18 @@ class NewsletterSettingsUpdateView(LoginRequiredMixin, UserPassesTestMixin, Upda
 
 
 class NewsletterSettingsDeleteView(LoginRequiredMixin, View):
+    """
+    Отображение для удаления рассылки
+    """
     model = NewsletterSettings
 
     def get(self, request, id):
+        """
+        Удаление периодической задачи по отправке рассылки при её удалении
+        :param request:
+        :param id:
+        :return:
+        """
         model = get_object_or_404(NewsletterSettings, id=id)
         task_id = model.task_id
         if task_id:

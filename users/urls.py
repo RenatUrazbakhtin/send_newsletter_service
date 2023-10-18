@@ -1,11 +1,9 @@
 from django.urls import path
 
 from django.contrib.auth import views
-from django.views.decorators.cache import cache_page
 
 from main.views import HomeView
-from newsletter.views import NewsletterSettingsListView
-from users.apps import UsersConfig
+
 from users.views import RegisterView, UserConfirmEmailView, EmailConfirmationSentView, UserUpdateView, \
     generate_password, UserListView, change_activity
 

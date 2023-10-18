@@ -21,6 +21,9 @@ status_mode = [
 ]
 
 class NewsletterSettings(models.Model):
+    """
+    Модель настройки рассылки
+    """
     periodicity = models.CharField(max_length=100, choices=periodicity, verbose_name='Периодичность')
     status = models.CharField(max_length=100, default='Создана', choices=status_mode, verbose_name='Статус')
     task_id = models.CharField(max_length=100, **NULLABLE)
@@ -40,6 +43,9 @@ class NewsletterSettings(models.Model):
         verbose_name_plural = 'Рассылки'
 
 class NewsletterMessage(models.Model):
+    """
+    Модель сообщения для рассылки
+    """
     title = models.CharField(max_length=100, verbose_name='Тема')
     body = models.TextField(max_length=1000, verbose_name='Тело')
     newsletter = models.ForeignKey(NewsletterSettings, on_delete=models.CASCADE, **NULLABLE)
@@ -51,10 +57,16 @@ class NewsletterMessage(models.Model):
         verbose_name_plural = 'Сообщения рассылок'
 
 class NewsletterLogManager(models.Manager):
+    """
+    Модель создания логов рассылки
+    """
     def create_log(self, attempt_status, newsletter, last_attempt_time=now(), feedback='None'):
         log = self.create(last_attempt_time=last_attempt_time, attempt_status=attempt_status, feedback=feedback, newsletter=newsletter)
         return log
 class NewsletterLog(models.Model):
+    """
+    Модель логов для рассылки
+    """
     last_attempt_time = models.DateTimeField(auto_now_add=True, verbose_name='Последняя попытка')
     attempt_status = models.CharField(verbose_name='Статус попытки')
     feedback = models.TextField(max_length=1000, verbose_name='Ответ')

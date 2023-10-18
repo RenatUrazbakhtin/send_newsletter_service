@@ -13,9 +13,16 @@ from newsletter.models import NewsletterSettings
 # Create your views here.
 
 class HomeView(TemplateView):
+    """
+    Отображение для домашней страницы
+    """
+
     template_name = 'main/home.html'
 
     def get_context_data(self, **kwargs):
+        """
+        Выборка количества рассылок, количества активных рассылок, количества уникальных клиентов
+        """
         context = {}
         blogs = Blog.objects.all()
         if blogs:
@@ -32,17 +39,29 @@ class HomeView(TemplateView):
         return context
 
 class ClientListView(LoginRequiredMixin, ListView):
+    """
+    Отображение для списка клиентов
+    """
     model = Client
 
 class ClientDetailView(LoginRequiredMixin, DetailView):
+    """
+    Отображение для отдельного клиента
+    """
     model = Client
 
 class ClientCreateView(LoginRequiredMixin, CreateView):
+    """
+    Отображение для создания клиента
+    """
     model = Client
     fields = ['email', 'first_name', 'last_name', 'comment']
     success_url = reverse_lazy('client_list')
 
     def form_valid(self, form):
+        """
+        Запись в поле creator при валидности формы создания клиента
+        """
         client = form.save(commit=False)
         client.creator = self.request.user
         client.save()
@@ -50,12 +69,19 @@ class ClientCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 class ClientUpdateView(LoginRequiredMixin, UpdateView):
+    """
+    Отображение для редактирования клиента
+    """
+
     model = Client
     fields = ['email', 'first_name', 'last_name', 'comment']
     def get_success_url(self):
         return reverse('client_list')
 
 class ClientDeleteView(LoginRequiredMixin, DeleteView):
+    """
+    Отображение для удаления клиента
+    """
     model = Client
     success_url = reverse_lazy('client_list')
 

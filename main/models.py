@@ -5,6 +5,9 @@ from config import settings
 # Create your models here.
 NULLABLE = {'null': True, 'blank': True}
 class Client(models.Model):
+    """
+    Модель клиента
+    """
     email = models.EmailField(max_length=100, verbose_name='Почта')
     first_name = models.CharField(max_length=100, verbose_name='Имя', **NULLABLE)
     last_name = models.CharField(max_length=100, verbose_name='Фамилия', **NULLABLE)

@@ -1,15 +1,11 @@
 from smtplib import SMTPException
 
-from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
-
 
 from config import settings
 from django.core.mail import send_mail
 
-
-from main.models import Client
 from newsletter.models import NewsletterMessage, NewsletterSettings, NewsletterLog
 from django.utils.timezone import now
 
@@ -17,6 +13,11 @@ scheduler = BlockingScheduler(timezone=settings.TIME_ZONE)
 
 
 def send_newsletter(newsletter: NewsletterSettings):
+    """
+    Отправка сообщения на почту
+    :param newsletter: Модель настроек рассылки
+    :return:
+    """
     newsletter_message = NewsletterMessage.objects.get(newsletter_id=newsletter.id)
     clients = newsletter.client.all()
     for client in clients:
@@ -37,6 +38,11 @@ def send_newsletter(newsletter: NewsletterSettings):
 
 
 def check_task(newsletter: NewsletterSettings):
+    """
+    Проверяет статус активности рассылки и время начала
+    :param newsletter: Модель настроек рассылки
+    :return:
+    """
     if newsletter.is_active:
         if newsletter.newsletter_time_from <= now():
             if now() <= newsletter.newsletter_time_to:
@@ -54,8 +60,9 @@ def check_task(newsletter: NewsletterSettings):
 
 def get_schedule(scheduler):
     """
-    Функция для добавления рассылки в очередь задач, если она не завершена.
+    Добавление рассылки в очередь задач, если она не завершена.
     Постановка рассылки на паузу в очереди задач, если она не активна
+    :param scheduler: Менеджер отправки
     """
     newsletters = NewsletterSettings.objects.all()
     if newsletters:
@@ -65,7 +72,7 @@ def get_schedule(scheduler):
                 if check_task(newsletter):
                     create_task(scheduler, newsletter)
                 else:
-                    # Рассылка все равно приходит, не получается ее удалить или поставить на паузу
+                    # Итоговое удаление рассылки
                     if scheduler.get_job(job_id):
                         scheduler.pause_job(job_id)
                         newsletter.status = 'приостановлена'
@@ -74,6 +81,12 @@ def get_schedule(scheduler):
 
 
 def create_task(scheduler, newsletter: NewsletterSettings):
+    """
+    Создает задачу с заданной периодичностью настроек рассылки
+    :param scheduler: Менеджер отправки
+    :param newsletter: Модель настроек рассылки
+    :return:
+    """
     newsletter.task_id = newsletter.id
     newsletter.save()
     if newsletter.periodicity == 'OD':
