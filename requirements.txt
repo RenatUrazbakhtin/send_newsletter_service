@@ -1,2 +1,9 @@
 Django
 psycopg2
+apscheduler
+django-apscheduler
+python-dotenv
+django-crispy-forms
+pillow
+redis
+python-dotenv
