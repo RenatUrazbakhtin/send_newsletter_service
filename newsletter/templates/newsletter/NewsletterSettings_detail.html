@@ -13,9 +13,11 @@
                 {% for client in newsletter_client %}
                     <p class="text-center">{{client.email}}</p>
                 {% endfor %}
+                <p class="text-center"> Время отпрвавки: {{newsletter.newsletter_time_from}} {{newsletter.newsletter_time_to}}</p>
                 <p class="text-center">Сообщение рассылки: {{newsletter_message.body}}</p>
                 <a class="p-2 btn btn-outline-primary" href="{% url 'NewsletterSettings_update' object.pk %}">Редактировать</a>
                 <a class="p-2 btn btn-outline-primary" href="{% url 'NewsletterSettings_delete' object.pk %}">Удалить</a>
+                <a class="p-2 btn btn-outline-primary" href="{% url 'NewsletterLog_list' object.pk %}">Лог рассылки</a>
             </div>
         </div>
     </div>

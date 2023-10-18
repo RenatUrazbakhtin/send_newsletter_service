@@ -14,7 +14,7 @@
                    href="{% url 'NewsletterSettings_detail' object.pk %}">Посмотреть</a>
                 <a class="p-2 btn btn-outline-primary" href="{% url 'NewsletterSettings_update' object.pk %}">Редактировать</a>
                 <a class="p-2 btn btn-outline-primary"
-                   href="{% url 'NewsletterSettings_delete' object.pk %}">Удалить</a>
+                   href="{% url 'NewsletterSettings_delete' object.id %}">Удалить</a>
             </div>
         </div>
     </div>

@@ -1,20 +1,40 @@
-from django.shortcuts import render, get_object_or_404
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.schedulers.blocking import BlockingScheduler
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.utils.timezone import now
+from django.views import View
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django_apscheduler.jobstores import DjangoJobStore
 
 from main.models import Client
 from newsletter.forms import NewsLetterMessageForm, NewsLetterSettingsForm
 from newsletter.models import NewsletterMessage, NewsletterLog, NewsletterSettings
+from newsletter.services import get_schedule
 
-
+scheduler = BackgroundScheduler()
+scheduler.add_jobstore(DjangoJobStore(), "default")
+scheduler.start()
 class NewsletterLogListView(ListView):
     model = NewsletterLog
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        return context_data
+
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(newsletter_id=self.kwargs.get('pk'))
+        queryset = queryset.order_by('-pk')
+        return queryset
+
 
 class NewsletterSettingsListView(ListView):
     model = NewsletterSettings
+
+
 class NewsletterSettingsDetailView(DetailView):
     model = NewsletterSettings
     context_object_name = 'newsletter'
+
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context['newsletter_message'] = NewsletterMessage.objects.get(newsletter=self.object)
@@ -41,6 +61,7 @@ class NewsletterSettingsCreateView(CreateView):
 
     def form_valid(self, form):
         newsletter = form.save(commit=False)
+        newsletter.status = 'CR'
         extra_form = self.extra_form_class(self.request.POST)
         newsletter.save()
 
@@ -49,11 +70,24 @@ class NewsletterSettingsCreateView(CreateView):
             newsletter_message.newsletter = newsletter
             newsletter_message.save()
 
+            NewsletterLog.objects.create_log(newsletter.status, newsletter)
+
+            if newsletter.newsletter_time_from <= now() <= newsletter.newsletter_time_to:
+                newsletter.status = 'LD'
+                get_schedule(scheduler)
+            elif newsletter.newsletter_time_to <= now():
+                newsletter.status = 'ED'
+                NewsletterLog.objects.create_log(newsletter.status, newsletter)
+
+            newsletter.save()
+
         return super().form_valid(form)
+
 
 class NewsletterSettingsUpdateView(UpdateView):
     model = NewsletterSettings
     form_class = NewsLetterSettingsForm
+
     def get_success_url(self):
         return reverse('NewsletterSettings_list')
 
@@ -65,15 +99,34 @@ class NewsletterSettingsUpdateView(UpdateView):
 
     def form_valid(self, form):
         newsletter = form.save(commit=False)
-        newsletter.save()
-
         newsletter_message = NewsletterMessage.objects.get(newsletter=newsletter)
         extra_form = NewsLetterMessageForm(self.request.POST, instance=newsletter_message)
-        if extra_form.is_valid():
-            extra_form.save()
 
+        if extra_form.is_valid():
+            if newsletter.newsletter_time_from <= now() <= newsletter.newsletter_time_to:
+                newsletter.status = 'LD'
+                get_schedule(scheduler)
+
+            elif newsletter.newsletter_time_to <= now():
+                newsletter.status = 'завершена'
+                NewsletterLog.objects.create_log(newsletter, newsletter.status)
+
+        extra_form.save()
         return super().form_valid(form)
 
-class NewsletterSettingsDeleteView(DeleteView):
+
+class NewsletterSettingsDeleteView(View):
     model = NewsletterSettings
-    success_url = reverse_lazy('NewsletterSettings_list')
+
+    def get(self, request, id):
+        model = get_object_or_404(NewsletterSettings, id=id)
+        task_id = model.task_id
+        if task_id:
+            scheduler.remove_job(task_id)
+            model.task_id = None
+            model.save()
+        model.delete()
+        return redirect('NewsletterSettings_list')
+
+
+

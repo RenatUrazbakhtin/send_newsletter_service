@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.timezone import now
 
 from main.models import Client
 
@@ -17,10 +18,14 @@ status_mode = [
 ]
 
 class NewsletterSettings(models.Model):
-    newsletter_time_from = models.TimeField(auto_now_add=True, verbose_name='Время начала рассылки', **NULLABLE)
-    newsletter_time_to = models.TimeField(auto_now_add=True, verbose_name='Время окончания рассылки', **NULLABLE)
     periodicity = models.CharField(max_length=100, choices=periodicity, verbose_name='Периодичность')
     status = models.CharField(max_length=100, default='Создана', choices=status_mode, verbose_name='Статус')
+    task_id = models.CharField(max_length=100, **NULLABLE)
+    newsletter_time_from = models.DateTimeField(verbose_name='Время начала рассылки', **NULLABLE)
+    newsletter_time_to = models.DateTimeField(verbose_name='Время окончания рассылки', **NULLABLE)
+    last_sent_date = models.DateTimeField(verbose_name='отправлено в', **NULLABLE)
+    is_active = models.BooleanField(default=True, verbose_name='активность')
+
 
     client = models.ManyToManyField(Client, verbose_name='Клиент рассылки')
     def __str__(self):
@@ -41,13 +46,18 @@ class NewsletterMessage(models.Model):
         verbose_name = 'Сообщение рассылки'
         verbose_name_plural = 'Сообщения рассылок'
 
+class NewsletterLogManager(models.Manager):
+    def create_log(self, attempt_status, newsletter, last_attempt_time=now(), feedback='None'):
+        log = self.create(last_attempt_time=last_attempt_time, attempt_status=attempt_status, feedback=feedback, newsletter=newsletter)
+        return log
 class NewsletterLog(models.Model):
     last_attempt_time = models.DateTimeField(auto_now_add=True, verbose_name='Последняя попытка')
-    attempt_status = models.BooleanField(default=False, verbose_name='Статус попытки')
+    attempt_status = models.CharField(verbose_name='Статус попытки')
     feedback = models.TextField(max_length=1000, verbose_name='Ответ')
 
     newsletter = models.ForeignKey(NewsletterSettings, on_delete=models.CASCADE, verbose_name='Рассылка')
 
+    objects = NewsletterLogManager()
     def __str__(self):
         return self.feedback
 
