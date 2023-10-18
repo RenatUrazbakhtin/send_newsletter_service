@@ -1,5 +1,6 @@
 import random
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
@@ -30,24 +31,31 @@ class HomeView(TemplateView):
         context['unique_clients'] = len(set(list))
         return context
 
-class ClientListView(ListView):
+class ClientListView(LoginRequiredMixin, ListView):
     model = Client
 
-class ClientDetailView(DetailView):
+class ClientDetailView(LoginRequiredMixin, DetailView):
     model = Client
 
-class ClientCreateView(CreateView):
+class ClientCreateView(LoginRequiredMixin, CreateView):
     model = Client
     fields = ['email', 'first_name', 'last_name', 'comment']
     success_url = reverse_lazy('client_list')
 
-class ClientUpdateView(UpdateView):
+    def form_valid(self, form):
+        client = form.save(commit=False)
+        client.creator = self.request.user
+        client.save()
+
+        return super().form_valid(form)
+
+class ClientUpdateView(LoginRequiredMixin, UpdateView):
     model = Client
     fields = ['email', 'first_name', 'last_name', 'comment']
     def get_success_url(self):
         return reverse('client_list')
 
-class ClientDeleteView(DeleteView):
+class ClientDeleteView(LoginRequiredMixin, DeleteView):
     model = Client
     success_url = reverse_lazy('client_list')
 
