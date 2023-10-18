@@ -1,10 +1,13 @@
 from django.db import models
 from django.utils.timezone import now
 
+from config import settings
 from main.models import Client
+
 
 # Create your models here.
 NULLABLE = {'null': True, 'blank': True}
+
 periodicity = [
     ('OD', 'Раз в день'),
     ('OW', 'Раз в неделю'),
@@ -24,6 +27,7 @@ class NewsletterSettings(models.Model):
     newsletter_time_from = models.DateTimeField(verbose_name='Время начала рассылки', **NULLABLE)
     newsletter_time_to = models.DateTimeField(verbose_name='Время окончания рассылки', **NULLABLE)
     last_sent_date = models.DateTimeField(verbose_name='отправлено в', **NULLABLE)
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='создатель рассылки', **NULLABLE)
     is_active = models.BooleanField(default=True, verbose_name='активность')
 
 

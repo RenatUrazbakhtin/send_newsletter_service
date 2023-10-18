@@ -10,11 +10,19 @@
                 <p class="lead">Информация</p>
                 <p class="text-center">Периодичность: {{object.periodicity}} </p>
                 <p class="text-center">Статус: {{object.status}}</p>
-                <a class="p-2 btn btn-outline-primary"
-                   href="{% url 'NewsletterSettings_detail' object.pk %}">Посмотреть</a>
-                <a class="p-2 btn btn-outline-primary" href="{% url 'NewsletterSettings_update' object.pk %}">Редактировать</a>
-                <a class="p-2 btn btn-outline-primary"
-                   href="{% url 'NewsletterSettings_delete' object.id %}">Удалить</a>
+                <a class="p-2 btn btn-outline-primary" href="{% url 'NewsletterSettings_detail' object.pk %}">Посмотреть</a>
+                {% if user.is_staff and user.is_superuser %}
+                    {% if object.is_active %}
+                        <a href="{% url 'change_newsletter_activity' object.pk %}"
+                           class="btn btn-sm btn-warning">Deactivate</a>
+                    {% else %}
+                        <a href="{% url 'change_newsletter_activity' object.pk %}"
+                           class="btn btn-sm btn-success">Activate</a>
+                        {% endif %}
+                {% else %}
+                    <a class="p-2 btn btn-outline-primary" href="{% url 'NewsletterSettings_update' object.pk %}">Редактировать</a>
+                    <a class="p-2 btn btn-outline-primary" href="{% url 'NewsletterSettings_delete' object.id %}">Удалить</a>
+                {% endif %}
             </div>
         </div>
     </div>

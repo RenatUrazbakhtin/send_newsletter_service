@@ -1,5 +1,6 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.blocking import BlockingScheduler
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.utils.timezone import now
@@ -15,8 +16,11 @@ from newsletter.services import get_schedule
 scheduler = BackgroundScheduler()
 scheduler.add_jobstore(DjangoJobStore(), "default")
 scheduler.start()
-class NewsletterLogListView(ListView):
+
+
+class NewsletterLogListView(LoginRequiredMixin, ListView):
     model = NewsletterLog
+
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
         return context_data
@@ -27,11 +31,21 @@ class NewsletterLogListView(ListView):
         return queryset
 
 
-class NewsletterSettingsListView(ListView):
+class NewsletterSettingsListView(LoginRequiredMixin, ListView):
     model = NewsletterSettings
 
+    def get_context_data(self, **kwargs):
+        object_list = NewsletterSettings.objects.all()
+        context_data = super().get_context_data(**kwargs)
+        if self.request.user.is_staff:
+            context_data['object_list'] = object_list
+        else:
+            context_data['object_list'] = object_list.filter(creator=self.request.user)
 
-class NewsletterSettingsDetailView(DetailView):
+        return context_data
+
+
+class NewsletterSettingsDetailView(LoginRequiredMixin, DetailView):
     model = NewsletterSettings
     context_object_name = 'newsletter'
 
@@ -42,7 +56,7 @@ class NewsletterSettingsDetailView(DetailView):
         return context
 
 
-class NewsletterSettingsCreateView(CreateView):
+class NewsletterSettingsCreateView(LoginRequiredMixin, CreateView):
     model = NewsletterSettings
     form_class = NewsLetterSettingsForm
     extra_form_class = NewsLetterMessageForm
@@ -63,6 +77,7 @@ class NewsletterSettingsCreateView(CreateView):
         newsletter = form.save(commit=False)
         newsletter.status = 'CR'
         extra_form = self.extra_form_class(self.request.POST)
+        newsletter.creator = self.request.user
         newsletter.save()
 
         if extra_form.is_valid():
@@ -84,9 +99,15 @@ class NewsletterSettingsCreateView(CreateView):
         return super().form_valid(form)
 
 
-class NewsletterSettingsUpdateView(UpdateView):
+class NewsletterSettingsUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = NewsletterSettings
     form_class = NewsLetterSettingsForm
+
+    def test_func(self):
+        if self.request.user.is_staff and not self.request.user.is_superuser:
+            return False
+        else:
+            return True
 
     def get_success_url(self):
         return reverse('NewsletterSettings_list')
@@ -115,7 +136,7 @@ class NewsletterSettingsUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class NewsletterSettingsDeleteView(View):
+class NewsletterSettingsDeleteView(LoginRequiredMixin, View):
     model = NewsletterSettings
 
     def get(self, request, id):
@@ -129,4 +150,15 @@ class NewsletterSettingsDeleteView(View):
         return redirect('NewsletterSettings_list')
 
 
+def change_newsletter_activity(*args, **kwargs):
+    """
+    Изменение активности рассылки
+    """
+    newsletter = get_object_or_404(NewsletterSettings, pk=kwargs.get('pk'))
+    if newsletter.is_active:
+        newsletter.is_active = False
+    else:
+        newsletter.is_active = True
+    newsletter.save()
 
+    return redirect(reverse_lazy('NewsletterSettings_list'))

@@ -2,7 +2,7 @@ from django.urls import path
 
 from main.views import HomeView
 from newsletter.views import NewsletterSettingsCreateView, NewsletterSettingsUpdateView, NewsletterSettingsDeleteView, \
-    NewsletterSettingsDetailView, NewsletterSettingsListView, NewsletterLogListView
+    NewsletterSettingsDetailView, NewsletterSettingsListView, NewsletterLogListView, change_newsletter_activity
 
 urlpatterns = [
     path('', HomeView.as_view, name='home'),
@@ -12,4 +12,5 @@ urlpatterns = [
     path('NewsletterSettings_list', NewsletterSettingsListView.as_view(), name='NewsletterSettings_list'),
     path('NewsletterSettings_detail/<int:pk>/', NewsletterSettingsDetailView.as_view(), name='NewsletterSettings_detail'),
     path('NewsletterLog_list/<int:pk>/', NewsletterLogListView.as_view(), name='NewsletterLog_list'),
+    path('change_newsletter_activity/<int:pk>/', change_newsletter_activity, name='change_newsletter_activity'),
 ]
