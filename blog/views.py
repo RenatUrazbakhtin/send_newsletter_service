@@ -34,6 +34,7 @@ class BlogDetailView(DetailView):
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
         self.object.add_view()
+        self.object.save()
         return self.object
 
 class BlogUpdateView(UpdateView):
