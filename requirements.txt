@@ -7,3 +7,4 @@ django-crispy-forms
 pillow
 redis
 python-dotenv
+crispy-bootstrap4
